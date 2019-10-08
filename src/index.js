@@ -1,49 +1,58 @@
 const { GraphQLServer } = require('graphql-yoga')
+const { prisma } = require('./generated/prisma-client')
 
-let links = [{
-    id: 'link-0',
-    url: 'www.howtographql.com',
-    description: 'Fullstack tutorial for GraphQL'
-}]
-
-let idCount = links.length
+const Query = require('./resolvers/Query')
+const Mutation = require('./resolvers/Mutation')
+const User = require('./resolvers/User')
+const Link = require('./resolvers/Link')
 
 const resolvers = {
-    Query: {
-        info: () => 'im not never null',
-        feed: () => links,
-        link: (parent, args) => {
-            return links.find(link => link.id == `link-${args.id}`)
-        }
-    },
-    Mutation: {
-        post: (parent, args) => {
-            const link = {
-                id: `link-${idCount++}`,
-                description: args.description,
-                url: args.url,
-            }
-            links.push(link)
-            return link
-        },
-        updateLink: (parent, args) => {
-            const matchInd = links.findIndex(link => link.id == `link-${args.id}`)
-            if (matchInd !== (-1)) {
-                args.id = `link-${args.id}`
-                links[matchInd] = { ...links[matchInd], ...args }
-                return links[matchInd]
-            }
-        },
-        deleteLink: (parent, args) => {
-            const matchInd = links.findIndex(link => link.id == `link-${args.id}`)
-            if (matchInd !== (-1)) {links.splice(matchInd, 1)}
-        }
-    },
+    Query,
+    Mutation,
+    User,
+    Link,
 }
+
+
+// I worked really hard on these resolvers. They're staying!
+// const resolvers = {
+//     Query: {
+//         info: () => 'im not never null',
+//         feed: (root, args, context, info) => {
+//             return context.prisma.links()
+//         },
+//     },
+//     Mutation: {
+//         post: (root, args, context) => {
+//            return context.prisma.createLink({
+//                url: args.url,
+//                description: args.description
+//            })
+//         },
+//         updateLink: (parent, args) => {
+//             const matchInd = links.findIndex(link => link.id == `link-${args.id}`)
+//             if (matchInd !== (-1)) {
+//                 args.id = `link-${args.id}`
+//                 links[matchInd] = { ...links[matchInd], ...args }
+//                 return links[matchInd]
+//             }
+//         },
+//         deleteLink: (parent, args) => {
+//             const matchInd = links.findIndex(link => link.id == `link-${args.id}`)
+//             if (matchInd !== (-1)) {links.splice(matchInd, 1)}
+//         }
+//     },
+// }
 
 const server = new GraphQLServer({
     typeDefs: './src/schema.graphql',
-    resolvers
+    resolvers,
+    context: request => {
+        return {
+            ...request,
+            prisma
+        }
+    },
 })
 
 
