@@ -1,43 +1,50 @@
 const { GraphQLServer } = require('graphql-yoga')
 
-const typeDefs = `
-type Query {
-    info: String!
-    feed: [Link!]!
-}
-
-type Link {
-    id: ID!
-    description: String!
-    url: String!
-}
-
-type Mutation {
-    post(url: String!, description: String!): Link!
-}
-`
-
 let links = [{
     id: 'link-0',
     url: 'www.howtographql.com',
     description: 'Fullstack tutorial for GraphQL'
 }]
 
+let idCount = links.length
+
 const resolvers = {
     Query: {
         info: () => 'im not never null',
         feed: () => links,
+        link: (parent, args) => {
+            return links.find(link => link.id == `link-${args.id}`)
+        }
     },
-    Link: {
-        id: (parent) => parent.id,
-        description: (parent) => parent.description,
-        url: (parent) => parent.url,
-    }
+    Mutation: {
+        post: (parent, args) => {
+            const link = {
+                id: `link-${idCount++}`,
+                description: args.description,
+                url: args.url,
+            }
+            links.push(link)
+            return link
+        },
+        updateLink: (parent, args) => {
+            const matchInd = links.findIndex(link => link.id == `link-${args.id}`)
+            if (matchInd !== (-1)) {
+                args.id = `link-${args.id}`
+                links[matchInd] = { ...links[matchInd], ...args }
+                return links[matchInd]
+            }
+        },
+        deleteLink: (parent, args) => {
+            const matchInd = links.findIndex(link => link.id == `link-${args.id}`)
+            if (matchInd !== (-1)) {links.splice(matchInd, 1)}
+        }
+    },
 }
 
 const server = new GraphQLServer({
-    typeDefs,
-    resolvers,
+    typeDefs: './src/schema.graphql',
+    resolvers
 })
+
 
 server.start(() => {console.log('server is running on http://localhost:4000')})
