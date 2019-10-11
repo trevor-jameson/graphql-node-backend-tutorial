@@ -43,6 +43,7 @@ async function login(parent, args, context, info) {
 }
 
 function post(parent, args, context, info) {
+    // This only posts for the current user. Will allow link creation for other users (no varying userId param)
     const userId = getUserId(context)
     return context.prisma.createLink({
         url: args.url,

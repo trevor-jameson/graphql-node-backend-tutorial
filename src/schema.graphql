@@ -1,4 +1,8 @@
 
+type Subscription {
+    newLink: Link
+}
+
 type Query {
     info: String!
     feed: [Link!]!
