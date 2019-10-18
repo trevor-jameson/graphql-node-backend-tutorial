@@ -70,9 +70,25 @@ async function vote(parent, args, context, info) {
     })
 }
 
+function updateLink(parent, { id, description, url}, context) {
+    return context.prisma.updateLink({
+        where: { id },
+        data: {
+            description,
+            url
+        }
+    })
+}
+
+function deleteLink(parent, { id }, context) {
+    return context.prisma.deleteLink({ id })
+}
+
 module.exports = {
     signup,
     login,
     post,
     vote,
+    updateLink,
+    deleteLink,
 }
