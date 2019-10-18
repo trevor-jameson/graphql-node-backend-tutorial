@@ -1,4 +1,4 @@
-async function feed(parent, {filter, skip, first}, context, info) {
+async function feed(parent, {filter, skip, first, orderBy}, context, info) {
     // Ternary checks whether filter arg was provided
     const where = filter ? {
         OR: [
@@ -9,10 +9,21 @@ async function feed(parent, {filter, skip, first}, context, info) {
 
     const links = await context.prisma.links({
         where,
-        skip: skip,
-        first: first,
+        skip,
+        first,
+        orderBy,
     })
-    return links
+
+    const count = await context.prisma.linksConnection({
+        where,
+    })
+    .aggregate()
+    .count()
+
+    return {
+        links,
+        count
+    }
 }
 
 
