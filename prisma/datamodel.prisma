@@ -1,23 +1,39 @@
-type Link {
-  id: ID! @id
-  createdAt: DateTime! @createdAt
-  description: String!
-  url: String!
-  postedBy: User
-  votes: [Vote!]!
-}
-
 type User {
   id: ID! @id
-  name: String!
-  email: String! @unique
+  createdAt: DateTime! @createdAt
+  username: String! @unique
   password: String!
-  links: [Link!]!
-  votes: [Vote!]!
+  avatarUrl: String
+  characters: [Character!]
 }
 
-type Vote {
+type Character {
   id: ID! @id
-  link: Link!
+  name: String!
+  createdAt: DateTime! @createdAt
   user: User!
+  spells: [Spell!] @relation(link: TABLE, name: "KnownSpells")
+}
+
+
+
+
+type Spell {
+  id: ID! @id
+  api5eId: String!
+  api5eIndex: String!
+  name: String!
+  description: String!
+  highLevel: String!
+  page: String!
+  range: String!
+  components: String!
+  ritual: Boolean!
+  concentration: Boolean!
+  duration: String!
+  castingTime: String!
+  material: String!
+  level: Int!
+  school: String!
+  klasses: String!
 }
